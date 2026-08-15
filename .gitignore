@@ -1,0 +1,28 @@
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+
+# Databases
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+
+# Credentials / sessions -- never commit these
+config.json
+*.session
+*session.json
+.env
+IG_*
+credentials.json
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp

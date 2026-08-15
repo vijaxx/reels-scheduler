@@ -1,0 +1,39 @@
+{
+  "database": "reels.db",
+  "log_level": "INFO",
+  "log_format": "text",
+  "caption_similarity_threshold": 0.88,
+
+  "schedule": {
+    "timezone": "Asia/Kolkata",
+    "posts_per_day": 3,
+    "window_start": "09:00",
+    "window_end": "21:00",
+    "min_gap_minutes": 150,
+    "max_per_day": 4,
+    "lead_time_minutes": 5,
+    "horizon_days": 14
+  },
+
+  "retry": {
+    "max_attempts": 3,
+    "backoff_base_minutes": 10,
+    "backoff_factor": 3.0,
+    "backoff_cap_minutes": 720,
+    "circuit_breaker_threshold": 5
+  },
+
+  "caption": {
+    "provider": "template",
+    "model": null,
+    "max_tokens": 300,
+    "hashtag_count": 6
+  },
+
+  "publisher": {
+    "backend": "dry_run",
+    "enable_real_publishing": false,
+    "username": null,
+    "session_file": null
+  }
+}

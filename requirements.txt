@@ -1,0 +1,13 @@
+# Core runtime has zero third-party dependencies -- sqlite3 and zoneinfo are
+# both in the Python 3.9+ standard library.
+
+# Testing
+pytest>=7.4
+
+# Optional, only needed if you opt into a hosted caption provider or the
+# instagrapi publisher backend. None of these are imported unless you select
+# that backend/provider in config.json or the environment.
+# anthropic>=0.30
+# google-generativeai>=0.7
+# groq>=0.9
+# instagrapi>=2.0
