@@ -267,3 +267,9 @@ repo's history.
 - **SQLite, single-process.** There's no locking story for two pipeline
   processes running against the same database file concurrently beyond
   SQLite's own WAL-mode guarantees.
+
+---
+
+## License
+
+MIT.
