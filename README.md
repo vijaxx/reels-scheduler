@@ -54,7 +54,7 @@ reels_scheduler/
 `compute_slots(now, count, claimed, cfg)` is a pure function: given the current
 instant, how many slots are wanted, every slot already claimed, and the
 cadence config, it returns new slot times. No database, no clock reads inside
-it — which is what makes it possible to test exhaustively (33 scheduler tests
+it — which is what makes it possible to test exhaustively (24 scheduler tests
 cover window boundaries, DST-free timezone conversion, gap enforcement across
 midnight, per-day caps that account for previously-claimed slots, and horizon
 exhaustion).
@@ -174,7 +174,7 @@ indexed range scan, no datetime parsing needed at the SQL layer.
 ```bash
 python3 -m venv .venv
 ./.venv/bin/pip install -r requirements.txt
-./.venv/bin/python -m pytest -q          # 80 tests
+./.venv/bin/python -m pytest -q          # 94 tests
 ./.venv/bin/python -m reels_scheduler queue add path/to/clip.mp4 --title "..." --tag foo
 ./.venv/bin/python -m reels_scheduler schedule
 ./.venv/bin/python -m reels_scheduler run --dry-run
@@ -201,7 +201,11 @@ reels reset-breaker                   close the circuit breaker after investigat
 
 ## What I actually ran and verified
 
-- `pytest -q` → **80 passed**, covering:
+- `pytest -q` → **94 passed**, covering:
+  - config parsing/validation: `HH:MM` parsing (valid, malformed, out-of-range
+    hour/minute, non-numeric), and every `ScheduleConfig.validate()` rejection
+    (zero/negative posts-per-day, max-per-day, gap, horizon, inverted or
+    zero-width window);
   - scheduler slot math: window boundaries, per-day spread, `min_gap_minutes`
     enforcement within a batch *and* against previously-claimed slots
     (including across a day boundary), per-day cap counting old + new slots,
