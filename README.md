@@ -174,7 +174,7 @@ indexed range scan, no datetime parsing needed at the SQL layer.
 ```bash
 python3 -m venv .venv
 ./.venv/bin/pip install -r requirements.txt
-./.venv/bin/python -m pytest -q          # 94 tests
+./.venv/bin/python -m pytest -q          # 105 tests
 ./.venv/bin/python -m reels_scheduler queue add path/to/clip.mp4 --title "..." --tag foo
 ./.venv/bin/python -m reels_scheduler schedule
 ./.venv/bin/python -m reels_scheduler run --dry-run
@@ -201,7 +201,7 @@ reels reset-breaker                   close the circuit breaker after investigat
 
 ## What I actually ran and verified
 
-- `pytest -q` → **94 passed**, covering:
+- `pytest -q` → **105 passed**, covering:
   - config parsing/validation: `HH:MM` parsing (valid, malformed, out-of-range
     hour/minute, non-numeric), and every `ScheduleConfig.validate()` rejection
     (zero/negative posts-per-day, max-per-day, gap, horizon, inverted or
@@ -227,7 +227,12 @@ reels reset-breaker                   close the circuit breaker after investigat
     persisting across separate `Pipeline` instances (i.e. across process
     restarts), a manual reset, and a full queue → schedule → (nothing due
     yet) → (due) → publish walk using the real scheduler instead of a
-    hand-set slot.
+    hand-set slot;
+  - captions: `build_provider`'s fallback rules (`auto` with no keys, an
+    explicit provider with a missing key, an unknown provider name), hashtag
+    dedup/count limits, and `CaptionGenerator` degrading to the offline
+    template both when a hosted provider raises and when it returns a
+    caption over Instagram's 2200-char limit.
 - The CLI, end to end, against a real SQLite file (`demo.db`, generated with
   ffmpeg then deleted — not committed): registered 3 distinct clips, had a
   4th (identical-content) registration rejected with an accurate error and
