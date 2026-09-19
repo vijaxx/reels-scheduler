@@ -16,6 +16,8 @@ DEFAULT_TIMEZONE = "Asia/Kolkata"
 
 
 def _parse_hhmm(value: str) -> dt.time:
+    if not isinstance(value, str):
+        raise ValueError("time must look like HH:MM, got %r" % value)
     parts = value.split(":")
     if len(parts) != 2:
         raise ValueError("time must look like HH:MM, got %r" % value)

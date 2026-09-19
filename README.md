@@ -174,7 +174,7 @@ indexed range scan, no datetime parsing needed at the SQL layer.
 ```bash
 python3 -m venv .venv
 ./.venv/bin/pip install -r requirements.txt
-./.venv/bin/python -m pytest -q          # 105 tests
+./.venv/bin/python -m pytest -q          # 110 tests
 ./.venv/bin/python -m reels_scheduler queue add path/to/clip.mp4 --title "..." --tag foo
 ./.venv/bin/python -m reels_scheduler schedule
 ./.venv/bin/python -m reels_scheduler run --dry-run
@@ -201,11 +201,13 @@ reels reset-breaker                   close the circuit breaker after investigat
 
 ## What I actually ran and verified
 
-- `pytest -q` → **105 passed**, covering:
+- `pytest -q` → **110 passed**, covering:
   - config parsing/validation: `HH:MM` parsing (valid, malformed, out-of-range
-    hour/minute, non-numeric), and every `ScheduleConfig.validate()` rejection
-    (zero/negative posts-per-day, max-per-day, gap, horizon, inverted or
-    zero-width window);
+    hour/minute, non-numeric, non-string), and every `ScheduleConfig.validate()`
+    rejection (zero/negative posts-per-day, max-per-day, gap, horizon, inverted
+    or zero-width window); `from_dict`/`load` round-tripping the shipped
+    `config.example.json`, rejecting a malformed section, and falling back to
+    defaults when the config file is absent;
   - scheduler slot math: window boundaries, per-day spread, `min_gap_minutes`
     enforcement within a batch *and* against previously-claimed slots
     (including across a day boundary), per-day cap counting old + new slots,

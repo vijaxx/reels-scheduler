@@ -8,10 +8,11 @@ part of this module most likely to be hit by a bad config file.
 from __future__ import annotations
 
 import datetime as dt
+import json
 
 import pytest
 
-from reels_scheduler.config import ScheduleConfig, _parse_hhmm
+from reels_scheduler.config import Config, ScheduleConfig, _parse_hhmm, from_dict, load
 
 
 def test_parse_hhmm_valid():
@@ -90,3 +91,44 @@ def test_validate_accepts_sane_defaults():
 def test_window_minutes_computed_correctly():
     cfg = ScheduleConfig(window_start=dt.time(9, 0), window_end=dt.time(21, 0))
     assert cfg.window_minutes == 720
+
+
+def test_parse_hhmm_rejects_non_string_with_value_error():
+    """A malformed config file can hand this a JSON number instead of a string.
+
+    Regression guard: _parse_hhmm used to call .split() unconditionally, so a
+    non-string value raised AttributeError instead of the ValueError every
+    other bad-input case here produces -- an unhelpful crash for what's meant
+    to be the friendliest part of a bad-config-file experience.
+    """
+    with pytest.raises(ValueError):
+        _parse_hhmm(900)
+
+
+def test_from_dict_round_trips_the_shipped_example_config():
+    with open("config.example.json", "r", encoding="utf-8") as handle:
+        raw = json.load(handle)
+    cfg = from_dict(raw)
+    assert cfg.schedule.posts_per_day == 3
+    assert cfg.schedule.window_start == dt.time(9, 0)
+    assert cfg.schedule.window_end == dt.time(21, 0)
+    assert cfg.retry.circuit_breaker_threshold == 5
+    assert cfg.caption.provider == "template"
+    assert cfg.publisher.backend == "dry_run"
+
+
+def test_from_dict_rejects_non_object_section():
+    with pytest.raises(ValueError, match="schedule"):
+        from_dict({"schedule": "not-a-dict"})
+
+
+def test_load_falls_back_to_defaults_when_file_is_missing(tmp_path):
+    cfg = load(str(tmp_path / "does-not-exist.json"))
+    assert cfg == Config()
+
+
+def test_load_reads_config_file(tmp_path):
+    path = tmp_path / "config.json"
+    path.write_text(json.dumps({"database": "custom.db"}))
+    cfg = load(str(path))
+    assert cfg.database == "custom.db"
