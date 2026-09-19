@@ -238,12 +238,14 @@ def build_provider(
 
 def build_hashtags(tags, count: int) -> str:
     seen: List[str] = []
+    if count <= 0:
+        return ""
     for tag in list(tags) + list(BASE_TAGS):
+        if len(seen) >= count:
+            break
         slug = _slug(str(tag))
         if slug and slug not in seen:
             seen.append(slug)
-        if len(seen) >= count:
-            break
     return " ".join("#" + t for t in seen)
 
 

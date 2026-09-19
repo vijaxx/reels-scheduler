@@ -72,6 +72,23 @@ def test_build_hashtags_fills_from_base_tags_when_short():
     assert len(hashtags.split()) == 2
 
 
+def test_build_hashtags_count_zero_returns_nothing():
+    """hashtag_count=0 is how a user opts out of hashtags entirely.
+
+    Regression guard: the loop used to append a tag *before* checking the
+    stop condition, so count=0 (and any negative count) still produced one
+    hashtag instead of none.
+    """
+    assert build_hashtags(["a", "b"], count=0) == ""
+    assert build_hashtags(["a", "b"], count=-1) == ""
+
+
+def test_generator_with_hashtag_count_zero_omits_hashtag_line():
+    generator = CaptionGenerator(CaptionConfig(hashtag_count=0))
+    caption = generator.generate("My Title", tags=["clip"])
+    assert "#" not in caption
+
+
 def test_template_provider_is_deterministic():
     provider = TemplateProvider()
     args = ("system", [{"role": "user", "content": "Title: Same\nSeed: fixed"}], 50)
