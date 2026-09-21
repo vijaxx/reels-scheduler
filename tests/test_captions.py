@@ -124,3 +124,18 @@ def test_generator_truncates_oversized_caption_without_cutting_hashtags():
     assert len(caption) <= MAX_CAPTION_CHARS
     hashtags = build_hashtags(["a", "b"], cfg.hashtag_count)
     assert caption.endswith(hashtags)
+
+
+def test_generator_truncates_oversized_caption_with_no_hashtags_cleanly():
+    """hashtag_count=0 plus an oversized body used to leave a trailing blank
+    hashtag line: the truncation branch always appended "\n\n" + hashtags,
+    even when hashtags was "". Truncating a long template/hosted response
+    with hashtags disabled must not add that empty line.
+    """
+    cfg = CaptionConfig(hashtag_count=0)
+    generator = CaptionGenerator(cfg, provider=_HugeProvider())
+    caption = generator.generate("Title", tags=["a", "b"])
+    assert len(caption) <= MAX_CAPTION_CHARS
+    assert "#" not in caption
+    assert not caption.endswith("\n\n")
+    assert caption == "A" * MAX_CAPTION_CHARS

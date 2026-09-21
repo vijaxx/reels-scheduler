@@ -276,6 +276,9 @@ class CaptionGenerator:
         hashtags = build_hashtags(tags, self.cfg.hashtag_count)
         caption = "%s\n\n%s" % (body.strip(), hashtags) if hashtags else body.strip()
         if len(caption) > MAX_CAPTION_CHARS:
-            keep = MAX_CAPTION_CHARS - len(hashtags) - 2
-            caption = body.strip()[: max(keep, 0)].rstrip() + "\n\n" + hashtags
+            if hashtags:
+                keep = MAX_CAPTION_CHARS - len(hashtags) - 2
+                caption = body.strip()[: max(keep, 0)].rstrip() + "\n\n" + hashtags
+            else:
+                caption = body.strip()[:MAX_CAPTION_CHARS]
         return caption[:MAX_CAPTION_CHARS]
